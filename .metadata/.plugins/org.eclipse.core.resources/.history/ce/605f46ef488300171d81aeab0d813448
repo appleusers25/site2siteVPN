@@ -1,0 +1,42 @@
+package com.example.site2siteVPN;
+
+import java.util.List;
+import java.util.Properties;
+import com.tailf.conf.*;
+import com.tailf.navu.*;
+import com.tailf.ncs.ns.Ncs;
+import com.tailf.dp.*;
+import com.tailf.dp.annotations.*;
+import com.tailf.dp.proto.*;
+import com.tailf.dp.services.*;
+import com.tailf.ncs.template.Template;
+import com.tailf.ncs.template.TemplateVariables;
+import com.tailf.cdb.*;
+import java.net.Socket;
+
+
+public class cdb_Database {
+	
+	//Database Variable
+	CdbSession session ;
+	
+	
+	//connect CDB
+    Socket socket = new Socket("localhost", Conf.NCS_PORT);
+    Cdb cdb = new Cdb("MyCdbSock", socket);
+    
+    
+    public void start_session() {
+    	session = cdb.startSession(CdbDBType.CDB_RUNNING);
+	}
+	
+	
+	public void close_session() {
+		session.endSession();
+    	socket.close();
+	}
+	
+	
+	
+
+}

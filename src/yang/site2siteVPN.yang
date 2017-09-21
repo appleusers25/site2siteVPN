@@ -1,0 +1,148 @@
+module site2siteVPN {
+    namespace "http://com/example/site2siteVPN";
+
+    prefix site2siteVPN;
+
+    import ietf-inet-types { prefix inet; }
+    import tailf-common { prefix tailf; }
+    import tailf-ncs { prefix ncs; }
+    
+    typedef interface-type {
+    	type enumeration {
+    		enum GigabitEthernet;
+    		enum Ethernet;
+    		enum FastEthernert;
+    	}
+    }
+    
+    typedef interface-number {
+        type string {
+            pattern "(\\d+)(/)(\\d+)";
+        }
+    }
+
+    typedef traffictype {
+        type enumeration {
+            enum tcp;
+            enum udp;
+            enum icmp;
+        }
+    }
+
+    typedef sk {
+        type string {
+            length "5..128";
+        }
+    }
+    
+    typedef cryptomapName {
+        type string {
+            length "5..128";
+        }
+    }
+    
+    typedef transformsetName {
+        type string {
+            length "5..128";
+        }
+    }
+
+    augment /ncs:services {
+
+        list site2siteVPN {
+
+            description "IPsec Site2Site VPN-Service";
+
+            key site2siteVPN;
+
+            uses ncs:service-data;
+            ncs:servicepoint site2siteVPN-servicepoint;
+
+            leaf site2siteVPN {
+                tailf:info "Service Instance Name";
+                tailf:cli-allow-range;
+                type string;
+            }
+
+            leaf endpoint1 {
+				mandatory true;
+                tailf:info "Router-Name from Endpoint 1";
+                type leafref {
+                    path "/ncs:devices/ncs:device/ncs:name";
+                }
+            }
+
+            leaf interface-number-endpoint1 {
+				mandatory true;
+                tailf:info "Interface Number from Endpoint 1";
+                type interface-number;
+            }
+            
+            leaf interface-type1 {
+            	mandatory true;
+            	tailf:info "Interface Type from Endpoint 1";
+            	type interface-type;
+            }
+
+
+            leaf endpoint2 {
+				mandatory true;
+                tailf:info "Router-Name from Endpoint 1";
+                type leafref {
+                    path "/ncs:devices/ncs:device/ncs:name";
+                }
+            }
+            
+            leaf interface-type2 {
+            	mandatory true;
+            	tailf:info "Interface Type from Endpoint 1";
+            	type interface-type;
+            }
+
+            leaf interface-number-endpoint2 {
+				mandatory true;
+                tailf:info "Interface Number from Endpoint 1";
+                type interface-number;
+            }
+
+
+            leaf shared-key {
+				mandatory true;
+                tailf:info "Key used for authentication";
+                type sk;
+            }
+            
+            leaf cryptomap-name {
+            	mandatory true;
+            	tailf:info "Name for the Crypto-Mapping, must be unique";
+            	type cryptomapName;
+            }
+            
+                leaf transformset-name {
+            	mandatory true;
+            	tailf:info "Name for the Transformset, must be unique";
+            	type transformsetName;
+            }
+
+            leaf traffictyp-to-secure {
+				mandatory true;
+                tailf:info "Traffictype wich to be secrue";
+                type traffictype;
+            }
+
+            tailf:action self-test {
+                tailf:info "Perform self-test of the service";
+                tailf:actionpoint site2siteVPN-self-test;
+                output {
+                    leaf success {
+                        type boolean;
+                    }
+                    leaf message {
+                        type string;
+                        description "Free format message.";
+                    }
+                }
+            }
+        }
+    }
+}

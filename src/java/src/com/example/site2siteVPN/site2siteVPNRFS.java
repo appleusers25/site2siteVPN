@@ -1,0 +1,144 @@
+package com.example.site2siteVPN;
+
+import com.example.site2siteVPN.namespaces.*;
+import java.util.List;
+import java.util.Properties;
+import com.tailf.conf.*;
+import com.tailf.navu.*;
+import com.tailf.ncs.ns.Ncs;
+import com.tailf.dp.*;
+import com.tailf.dp.annotations.*;
+import com.tailf.dp.proto.*;
+import com.tailf.dp.services.*;
+import com.tailf.ncs.template.Template;
+import com.tailf.ncs.template.TemplateVariables;
+import com.tailf.cdb.*;
+import java.net.Socket;
+
+
+public class site2siteVPNRFS {
+
+
+    /**
+     * Create callback method.
+     * This method is called when a service instance committed due to a create
+     * or update event.
+     *
+     * This method returns a opaque as a Properties object that can be null.
+     * If not null it is stored persistently by Ncs.
+     * This object is then delivered as argument to new calls of the create
+     * method for this service (fastmap algorithm).
+     * This way the user can store and later modify persistent data outside
+     * the service model that might be needed.
+     *
+     * @param context - The current ServiceContext object
+     * @param service - The NavuNode references the service node.
+     * @param ncsRoot - This NavuNode references the ncs root.
+     * @param opaque  - Parameter contains a Properties object.
+     *                  This object may be used to transfer
+     *                  additional information between consecutive
+     *                  calls to the create callback.  It is always
+     *                  null in the first call. I.e. when the service
+     *                  is first created.
+     * @return Properties the returning opaque instance
+     * @throws ConfException
+     */
+
+    @ServiceCallback(servicePoint="site2siteVPN-servicepoint",
+        callType=ServiceCBType.CREATE)
+    public Properties create(ServiceContext context,
+                             NavuNode service,
+                             NavuNode ncsRoot,
+                             Properties opaque)
+                             throws ConfException {
+
+        Template myTemplate = new Template(context, "site2siteVPN-template");
+        TemplateVariables myVars = new TemplateVariables();
+
+        try {
+            // set a variable to some value
+            //myVars.putQuoted("DUMMY", "10.0.0.1");
+            // apply the template with the variable
+            //myTemplate.apply(service, myVars);
+        	
+        	//get all input Values
+        	String endpoint1_input = service.leaf("endpoint1").valueAsString();
+        	String endpoint2_input = service.leaf("endpoint2").valueAsString();
+        	String interface1_input = service.leaf("interface-type1").valueAsString();
+        	String interface2_input = service.leaf("interface-type2").valueAsString();
+        	String interfaceNumber1_input = service.leaf("interface-number-endpoint1").valueAsString();
+        	String interfaceNumber2_input = service.leaf("interface-number-endpoint2").valueAsString();
+        	
+        	//check that user didnt select same devices at the same time
+        	if (endpoint1_input == endpoint2_input) {
+        		throw new ConfException("Endpoint1 and Endpoint2 cannot be the same device");
+        	}
+        	
+        	//build XPath paths for accesing IPs
+        	String path1 = "/devices/device{"+endpoint1_input+"}/config/ios:interface/"+interface1_input+"{"+interfaceNumber1_input+"}/ios:ip/ios:address/ios:primary/ios:address";
+        	String path2 = "/devices/device{"+endpoint2_input+"}/config/ios:interface/"+interface2_input+"{"+interfaceNumber2_input+"}/ios:ip/ios:address/ios:primary/ios:address";
+        	
+        	//create Socket and Session CDB
+        	Socket socket = new Socket("localhost", Conf.NCS_PORT);
+        	Cdb cdb = new Cdb("MyCdbSock", socket);
+        	CdbSession session = cdb.startSession(CdbDBType.CDB_RUNNING);
+        	
+        	//get IPs from CDB
+        	ConfIPv4 ip_path1 = (ConfIPv4) session.getElem(path1);
+        	ConfIPv4 ip_path2 = (ConfIPv4) session.getElem(path2);
+        	
+        	//close the CDB session
+        	session.endSession();
+        	socket.close();
+        	
+        	//print the IPs
+        	System.out.println(ip_path1.toString());
+        	System.out.println(ip_path2.toString());
+        	
+        	//parse the IPs in String values
+        	String ip_address_endpoint1 = ip_path1.toString();
+        	String ip_address_endpoint2 = ip_path2.toString();
+        	
+        	//put the String Values to XML-Template
+        	myVars.putQuoted("ip-address-endpoint1", ip_address_endpoint1);
+        	myVars.putQuoted("ip-address-endpoint2", ip_address_endpoint2);
+        	myTemplate.apply(service, myVars);
+        	
+        	
+        	
+        } catch (Exception e) {
+            throw new DpCallbackException(e.getMessage(), e);
+        }
+        return opaque;
+    }
+
+
+    /**
+     * Init method for selftest action
+     */
+    @ActionCallback(callPoint="site2siteVPN-self-test", callType=ActionCBType.INIT)
+    public void init(DpActionTrans trans) throws DpCallbackException {
+    }
+
+    /**
+     * Selftest action implementation for service
+     */
+    @ActionCallback(callPoint="site2siteVPN-self-test", callType=ActionCBType.ACTION)
+    public ConfXMLParam[] selftest(DpActionTrans trans, ConfTag name,
+                                   ConfObject[] kp, ConfXMLParam[] params)
+    throws DpCallbackException {
+        try {
+            // Refer to the service yang model prefix
+            String nsPrefix = "site2siteVPN";
+            // Get the service instance key
+            String str = ((ConfKey)kp[0]).toString();
+
+          return new ConfXMLParam[] {
+              new ConfXMLParamValue(nsPrefix, "success", new ConfBool(true)),
+              new ConfXMLParamValue(nsPrefix, "message", new ConfBuf(str))};
+
+        } catch (Exception e) {
+            throw new DpCallbackException("self-test failed", e);
+        }
+    }
+}

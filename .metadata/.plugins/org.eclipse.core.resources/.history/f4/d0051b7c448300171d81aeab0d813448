@@ -1,0 +1,22 @@
+package com.example.site2siteVPN;
+
+import java.net.Socket;
+import com.tailf.cdb.*;
+
+public class cdb_Database {
+	
+	
+	
+	public cdbSession(socket) {
+		//create Socket and Session CDB
+    	Socket socket = new Socket("localhost", Conf.NCS_PORT);
+    	Cdb cdb = new Cdb("MyCdbSock", socket);
+    	CdbSession session = cdb.startSession(CdbDBType.CDB_RUNNING);
+	}
+	
+	
+	
+	
+	
+
+}

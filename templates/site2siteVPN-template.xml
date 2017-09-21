@@ -1,0 +1,192 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+	<devices xmlns="http://tail-f.com/ns/ncs">
+		<device>
+			<name>{/endpoint1}</name>
+			<config>
+				<crypto xmlns="urn:ios">
+					<isakmp>
+						<policy>
+							<priority>10</priority>
+							<encr>
+								<algorithm>3des</algorithm>
+							</encr>
+							<hash>md5</hash>
+							<authentication>pre-share</authentication>
+							<group>2</group>
+							<lifetime>86400</lifetime>
+						</policy>
+						<key>
+							<address>{$ip-address-endpoint2}</address>
+							<keystring>{/shared-key}</keystring>
+						</key>
+					</isakmp>
+					<ipsec>
+						<transform-set>
+							<name>{/transformset-name}</name>
+							<transform2>esp-3des</transform2>
+							<transform3>esp-sha-hmac</transform3>
+						</transform-set>
+					</ipsec>
+					<map>
+						<name>{/cryptomap-name}</name>
+						<seq-list>
+							<id>10</id>
+							<policy>ipsec-isakmp</policy>
+							<set>
+								<transform-set>{/transformset-name}</transform-set>
+								<peer>{$ip-address-endpoint2}</peer>
+								<security-association>
+									<lifetime>
+										<seconds>86400</seconds>
+									</lifetime>
+								</security-association>
+								<pfs>group2</pfs>
+							</set>
+							<match>
+								<address>100</address>
+							</match>
+						</seq-list>
+					</map>
+				</crypto>
+				<interface xmlns="urn:ios">
+				
+					<GigabitEthernet when="{/interface-type1 ='GigabitEthernet'}">
+						<name>{/interface-number-endpoint1}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</GigabitEthernet>
+					
+					<Ethernet when="{/interface-type1 ='Ethernet'}">
+						<name>{/interface-number-endpoint1}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</Ethernet>
+					
+					<FastEthernet when="{/interface-type1 ='FastEthernet'}">
+						<name>{/interface-number-endpoint1}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</FastEthernet>
+					
+				</interface>
+				<access-list xmlns="urn:ios">
+					<access-list>
+						<id>100</id>
+						<rule>
+							<rule>permit {/traffictyp-to-secure} any any</rule>
+						</rule>
+					</access-list>
+				</access-list>
+			</config>
+		</device>
+		<device>
+			<name>{/endpoint2}</name>
+			<config>
+				<crypto xmlns="urn:ios">
+					<isakmp>
+						<policy>
+							<priority>10</priority>
+							<encr>
+								<algorithm>3des</algorithm>
+							</encr>
+							<hash>md5</hash>
+							<authentication>pre-share</authentication>
+							<group>2</group>
+							<lifetime>86400</lifetime>
+						</policy>
+						<key>
+							<address>{$ip-address-endpoint1}</address>
+							<keystring>{/shared-key}</keystring>
+						</key>
+					</isakmp>
+					<ipsec>
+						<transform-set>
+							<name>{/transformset-name}</name>
+							<transform2>esp-3des</transform2>
+							<transform3>esp-sha-hmac</transform3>
+						</transform-set>
+					</ipsec>
+					<map>
+						<name>{/cryptomap-name}</name>
+						<seq-list>
+							<id>10</id>
+							<policy>ipsec-isakmp</policy>
+							<set>
+								<transform-set>{/transformset-name}</transform-set>
+								<peer>{$ip-address-endpoint1}</peer>
+								<security-association>
+									<lifetime>
+										<seconds>86400</seconds>
+									</lifetime>
+								</security-association>
+								<pfs>group2</pfs>
+							</set>
+							<match>
+								<address>100</address>
+							</match>
+						</seq-list>
+					</map>
+				</crypto>
+				<interface xmlns="urn:ios">
+				
+					<GigabitEthernet when="{/interface-type2 = 'GigabitEthernet'}">
+						<name>{/interface-number-endpoint2}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</GigabitEthernet>
+					
+					<Ethernet when="{/interface-type2 = 'Ethernet'}">
+						<name>{/interface-number-endpoint2}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</Ethernet>
+					
+					<FastEthernet when="{/interface-type2 = 'FastEthernet'}">
+						<name>{/interface-number-endpoint2}</name>
+						<crypto>
+							<map>
+								<ipv4>
+									<map-name>{/cryptomap-name}</map-name>
+								</ipv4>
+							</map>
+						</crypto>
+					</FastEthernet>
+					
+				</interface>
+				<access-list xmlns="urn:ios">
+					<access-list>
+						<id>100</id>
+						<rule>
+							<rule>permit {/traffictyp-to-secure} any any</rule>
+						</rule>
+					</access-list>
+				</access-list>
+			</config>
+		</device>
+	</devices>
+</config-template>
