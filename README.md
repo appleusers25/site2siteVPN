@@ -1,4 +1,4 @@
-# site2siteVPN
+# Site2SiteVPN
 Hi,
 
 this is a Site 2 Site VPN service for the CISCO Network Service Orchestration (NSO).
@@ -10,4 +10,7 @@ My Lab environment will use following tools/operating systems/software:
 * Virtualbox
 * Linux CentOS 7
 * NSO
-* Pronghorn
+* Itential Pronghorn
+
+## GNS3 
+GNS3 is a Graphical Network Simulator. This tool allows easy network mapping and testing. To do this, the corresponding router or vms must be added to GNS3. For more information, visit GNS3's official [website](https://www.gns3.com/)
