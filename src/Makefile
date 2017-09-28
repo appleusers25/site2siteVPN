@@ -4,7 +4,7 @@ all: javac
 # Include standard NCS examples build definitions and rules
 include $(NCS_DIR)/src/ncs/build/include.ncs.mk
 
-JAVA_PACKAGE = com.example.site2siteVPN
+JAVA_PACKAGE = com.example.site2siteVPN_V1
 JDIR = $(shell echo $(JAVA_PACKAGE) | sed 's/\./\//g')
 
 NS  = namespaces

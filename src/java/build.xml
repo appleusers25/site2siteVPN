@@ -9,7 +9,7 @@
   <property name="doc.dir" value="${build.dir}/javadoc"/>
   <property name="ncs.dir" value="${env.NCS_DIR}/java/jar"/>
   <property name="ncs.topdir" value="${env.NCS_DIR}"/>
-  <property name="package" value="site2siteVPN"/>
+  <property name="package" value="site2siteVPN_V1"/>
 
   <!-- Retrieving compilation compability parameters from NCS
        Remove the following row if this is not desired  -->
